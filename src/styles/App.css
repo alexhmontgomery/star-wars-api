@@ -1,0 +1,30 @@
+.App {
+  margin: 10px;
+}
+
+.card{
+  margin: 5px;
+}
+
+.form{
+  text-align: center;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.form button {
+  width: 10%;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 4%;
+  margin: 1%;
+}
+
+.form input {
+  width: 25%;
+}
