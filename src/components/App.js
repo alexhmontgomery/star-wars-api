@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import '../styles/App.css'
+import Vehicles from './vehicles'
 
 class App extends Component {
   // PROPS AND STATE
@@ -12,11 +13,13 @@ class App extends Component {
     this.state = {
       vehicles: [],
       value: '',
-      pilot: ''
+      pilot: '',
+      selectedOption: 'vehicles'
     }
 
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleOptionChange = this.handleOptionChange.bind(this)
   }
 
   // FORM: HANDLE INPUT CHANGES
@@ -43,6 +46,27 @@ class App extends Component {
     })
     console.log(this.state.value)
   }
+
+  handleOptionChange (event) {
+    let selectedOption = event.target.value
+    // set the state
+    this.setState({
+      selectedOption: selectedOption
+    })
+    // fetch information for the new option
+    fetch(`https://swapi.co/api/${selectedOption}/`)
+    .then((response) => {
+      return response.json()
+    })
+    .then((json) => {
+      console.log(json.results)
+      let vehicles = json.results
+
+      this.setState({vehicles: vehicles})
+      console.log(this.state.selectedOption)
+    })
+  }
+
   // LIFECYCLE
   // Which lifecycle is best for fetching data?
   // Inside this lifecycle, you will fetch the vehicles from here: https://swapi.co/api/vehicles/
@@ -52,7 +76,7 @@ class App extends Component {
   // Enter your code below:
   componentDidMount () {
     console.log(this)
-    fetch('https://swapi.co/api/vehicles/')
+    fetch(`https://swapi.co/api/${this.state.selectedOption}/`)
     .then((response) => {
       console.log(response)
       return response.json()
@@ -77,12 +101,24 @@ class App extends Component {
     Store vehicles state in a variable.
     Map over this variable to access the values needed to render.
     */
+
+    let isVehiclesChecked = this.state.selectedOption === 'vehicles'
+    let isStarshipsChecked = this.state.selectedOption === 'starships'
+
     return (
       <div className='App'>
         <div className='jumbotron'>
           <h1 className='display-3'>Star Wars</h1>
           <hr className='my-4' />
-          <p>The Vehicles of Star Wars</p>
+          <form>
+            <label>Choose a transporter type to display: </label>
+            <div>
+              <input type='radio' name='type' value='vehicles' checked={isVehiclesChecked} onChange={this.handleOptionChange} /> Vehicles
+            </div>
+            <div>
+              <input type='radio' name='type' value='starships' checked={isStarshipsChecked} onChange={this.handleOptionChange} /> Starships
+            </div>
+          </form>
         </div>
 
         <form className='form' onSubmit={this.handleSubmit}>
@@ -92,27 +128,11 @@ class App extends Component {
           <h4>{this.state.pilot}</h4>
         </form>
 
-        <div className='card-deck'>
-          {this.state.vehicles.map((vehicle) =>
-            <div className='card' key={vehicle.name}>
-              <div className='card-block'>
-                <h4 className='card-title'>Vehicle: {vehicle.name}</h4>
-                <p className='card-text'>Model: {vehicle.model}</p>
-                <p className='card-text'>Specs: </p>
-                <ul className='list-group list-group-flush'>
-                  <li className='list-group-item'>Manufacturer: {vehicle.manufacturer}</li>
-                  <li className='list-group-item'>Class: {vehicle.vehicle_class}</li>
-                  <li className='list-group-item'>Passengers: {vehicle.passengers}</li>
-                  <li className='list-group-item'>Crew: {vehicle.crew}</li>
-                  <li className='list-group-item'>Length: {vehicle.length}</li>
-                  <li className='list-group-item'>Max Speed: {vehicle.max_atmosphering_speed}</li>
-                  <li className='list-group-item'>Cargo Capacity: {vehicle.cargo_capacity}</li>
-                </ul>
-              </div>
-            </div>
-          )}
+        <div className='current-display'>
+          <h3 className='current-display-name'>Displaying the <strong>{this.state.selectedOption}</strong> transporters</h3>
         </div>
 
+        <Vehicles vehicles={this.state.vehicles} />
       </div>
     )
   }
